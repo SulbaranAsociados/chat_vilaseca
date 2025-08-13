@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Página de Inicio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <img src="logo.png" alt="Logo" class="logo">
+    <div class="text-field-container">
+        <div class="textarea-wrapper">
+            <textarea 
+                id="messageField" 
+                class="text-field" 
+                placeholder="Haz la consulta que quieras referente a la ciudad"
+                rows="1"
+            ></textarea>
+            <button id="sendButton" class="send-button" type="button">
+                <svg class="send-icon" viewBox="0 0 24 24">
+                    <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z" />
+                </svg>
+            </button>
+        </div>
+        <div id="statusMessage" class="status-message"></div>
+    </div>
+
+    <div class="voice-recorder" id="voiceRecorder">
+        <div class="mic-container" id="micContainer">
+            <img src="microfono.png" alt="Micrófono" class="mic-icon" id="micIcon">
+            <div class="animation-container">
+                <span></span><span></span><span></span><span></span>
+            </div>
+        </div>
+        <p class="status-text" id="statusText">Toca el micrófono para enviar un mensaje con tu voz.</p>
+        <div class="controls" id="controls">
+            <button class="learn-more" id="playBtn">
+              <span class="circle" aria-hidden="true">
+                <span class="icon arrow"></span>
+              </span>
+              <span class="button-text">Reproducir</span>
+            </button>
+            <button class="learn-more" id="discardBtn">
+              <span class="circle" aria-hidden="true">
+                <span class="icon arrow"></span>
+              </span>
+              <span class="button-text">Descartar</span>
+            </button>
+            <button class="learn-more" id="sendBtn">
+              <span class="circle" aria-hidden="true">
+                <span class="icon arrow"></span>
+              </span>
+              <span class="button-text">Enviar</span>
+            </button>
+        </div>
+    </div>
+
+    <div class="whatsapp-footer">
+        <img src="whatsappGris.png" alt="WhatsApp">
+        <p>Ahora puedes hacer tus consultas usando Whatsapp</p>
+    </div>
+
+    <script>
+        class ExpandableTextField {
+            constructor() {
+                this.messageField = document.getElementById('messageField');
+                this.sendButton = document.getElementById('sendButton');
+                this.statusMessage = document.getElementById('statusMessage');
+                this.webhookUrl = 'https://super-asistente-n8n.krtgsl.easypanel.host/webhook-test/74093b37-ead0-4c6f-8fba-bcde701e10fc';
+                
+                this.init();
+            }
+
+            init() {
+                this.messageField.addEventListener('input', () => this.autoResize());
+                this.sendButton.addEventListener('click', () => this.sendMessage());
+                this.messageField.addEventListener('keydown', (e) => { if (e.ctrlKey && e.key === 'Enter') this.sendMessage(); });
+                this.autoResize();
+            }
+
+            autoResize() {
+                this.messageField.style.height = 'auto';
+                const maxHeight = 120;
+                const newHeight = Math.min(this.messageField.scrollHeight, maxHeight);
+                this.messageField.style.height = newHeight + 'px';
+            }
+
+            async sendMessage() {
+                const message = this.messageField.value.trim();
+                if (!message) return;
+                console.log("Enviando mensaje de texto:", message);
+                // Lógica de envío...
+            }
+        }
+
+        class VoiceRecorder {
+            constructor(containerId) {
+                this.container = document.getElementById(containerId);
+                if (!this.container) {
+                    console.error("Contenedor del grabador no encontrado");
+                    return;
+                }
+
+                this.elements = {
+                    micContainer: this.container.querySelector('#micContainer'),
+                    statusText: this.container.querySelector('#statusText'),
+                    controls: this.container.querySelector('#controls'),
+                    playBtn: this.container.querySelector('#playBtn'),
+                    discardBtn: this.container.querySelector('#discardBtn'),
+                    sendBtn: this.container.querySelector('#sendBtn'),
+                };
+
+                this.isRecording = false;
+                this.hasPermission = false;
+                this.mediaRecorder = null;
+                this.audioChunks = [];
+                this.audioBlob = null;
+                this.recordingTimer = null;
+                this.maxRecordingTime = 30; // en segundos
+
+                this.init();
+            }
+
+            init() {
+                this.elements.micContainer.addEventListener('click', () => this.handleMicClick());
+                this.elements.playBtn.addEventListener('click', () => this.playRecording());
+                this.elements.discardBtn.addEventListener('click', () => this.discardRecording());
+                this.elements.sendBtn.addEventListener('click', () => this.sendRecording());
+
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    this.elements.statusText.textContent = "Tu navegador no permite grabar audio.";
+                }
+            }
+
+            async handleMicClick() {
+                if (this.isRecording) {
+                    this.stopRecording();
+                } else if (!this.hasPermission) {
+                    await this.requestPermission();
+                } else {
+                    this.startRecording();
+                }
+            }
+
+            async requestPermission() {
+                try {
+                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    this.hasPermission = true;
+                    this.startRecording(stream);
+                } catch (error) {
+                    this.elements.statusText.textContent = "Debes permitir el acceso al micrófono.";
+                    console.error("Error de permisos:", error);
+                }
+            }
+
+            async startRecording(stream) {
+                try {
+                    const audioStream = stream || await navigator.mediaDevices.getUserMedia({ audio: true });
+                    const options = {};
+                    if (MediaRecorder.isTypeSupported('audio/ogg; codecs=opus')) {
+                        options.mimeType = 'audio/ogg; codecs=opus';
+                    } else if (MediaRecorder.isTypeSupported('audio/webm; codecs=opus')) {
+                        options.mimeType = 'audio/webm; codecs=opus';
+                    } else if (MediaRecorder.isTypeSupported('audio/wav')) {
+                        options.mimeType = 'audio/wav';
+                    } else {
+                        throw new Error('No se encontró un formato de audio compatible.');
+                    }
+                    this.mediaRecorder = new MediaRecorder(audioStream, options);
+                    this.mediaRecorder.ondataavailable = event => {
+                        if (event.data.size > 0) this.audioChunks.push(event.data);
+                    };
+                    this.mediaRecorder.onstop = () => {
+                        this.audioBlob = new Blob(this.audioChunks, { type: options.mimeType });
+                        this.audioChunks = [];
+                        audioStream.getTracks().forEach(track => track.stop());
+                        this.updateUIForRecording(false);
+                    };
+                    this.mediaRecorder.start();
+                    this.isRecording = true;
+                    this.updateUIForRecording(true);
+                    this.recordingTimer = setTimeout(() => {
+                        this.stopRecording(true);
+                    }, this.maxRecordingTime * 1000);
+                } catch (error) {
+                    this.elements.statusText.textContent = "No se pudo iniciar la grabación.";
+                    console.error("Error detallado al grabar:", error);
+                }
+            }
+
+            stopRecording(isTimeout = false) {
+                if (!this.mediaRecorder) return;
+                this.mediaRecorder.stop();
+                this.isRecording = false;
+                clearTimeout(this.recordingTimer);
+                if (isTimeout) {
+                    this.elements.statusText.textContent = "Has excedido el tiempo de grabación del mensaje";
+                }
+            }
+
+            updateUIForRecording(isRecording) {
+                if (isRecording) {
+                    this.elements.micContainer.classList.add('recording');
+                    this.elements.statusText.textContent = "Toca de nuevo para detener la grabación";
+                    this.elements.controls.classList.remove('visible');
+                } else {
+                    this.elements.micContainer.classList.remove('recording');
+                    this.elements.statusText.textContent = "Grabación finalizada. ¿Qué deseas hacer?";
+                    this.elements.controls.classList.add('visible');
+                }
+            }
+
+            playRecording() {
+                if (this.audioBlob) {
+                    const audioUrl = URL.createObjectURL(this.audioBlob);
+                    const audio = new Audio(audioUrl);
+                    audio.play();
+                }
+            }
+
+            discardRecording() {
+                this.audioBlob = null;
+                this.elements.controls.classList.remove('visible');
+                this.elements.statusText.textContent = "Toca el micrófono para enviar un mensaje con tu voz.";
+            }
+
+            sendRecording() {
+                if (this.audioBlob) {
+                    console.log("Audio Blob listo para enviar:", this.audioBlob);
+                    this.elements.statusText.textContent = "¡Audio listo para ser enviado!";
+                    // Aquí iría la lógica para subir el this.audioBlob a un servidor.
+                    // Ejemplo: uploadToServer(this.audioBlob);
+                    this.discardRecording(); // Resetear la UI después de enviar
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new ExpandableTextField();
+            new VoiceRecorder('voiceRecorder');
+        });
+    </script>
+</body>
+</html>
