@@ -23,11 +23,12 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
+            transform: translateY(-40px);
         }
 
         .mic-icon {
-            width: 100px;
-            height: 100px;
+            width: 80px;
+            height: 80px;
             border-radius: 50%;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
             transition: box-shadow 0.3s ease;
@@ -43,8 +44,8 @@
             position: absolute;
             top: 50%;
             left: 50%;
-            width: 100px;
-            height: 100px;
+            width: 85px;
+            height: 85px;
             display: none; /* Oculto por defecto */
             z-index: 1;
             border-radius: 50%;
@@ -81,12 +82,13 @@
             color: #666;
             margin-top: 20px;
             min-height: 40px;
+            transform: translateY(-40px);
         }
 
         .controls {
             display: flex;
             gap: 15px;
-            margin-top: 15px;
+            margin-top: -45px;
             opacity: 0;
             visibility: hidden;
             transition: opacity 0.3s, visibility 0.3s;
