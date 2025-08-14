@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="boton_plano.css">
 </head>
 <body>
     <img src="logo.png" alt="Logo" class="logo">
@@ -35,26 +36,11 @@
                 <span></span><span></span><span></span><span></span>
             </div>
         </div>
-        <p class="status-text" id="statusText">Toca el micrófono para enviar un mensaje con tu voz.</p>
+        <p class="status-text" id="statusText" style="position: relative; bottom: 10px;">Toca el micrófono para enviar un mensaje con tu voz.</p>
         <div class="controls" id="controls">
-            <button class="learn-more" id="playBtn">
-              <span class="circle" aria-hidden="true">
-                <span class="icon arrow"></span>
-              </span>
-              <span class="button-text">Reproducir</span>
-            </button>
-            <button class="learn-more" id="discardBtn">
-              <span class="circle" aria-hidden="true">
-                <span class="icon arrow"></span>
-              </span>
-              <span class="button-text">Descartar</span>
-            </button>
-            <button class="learn-more" id="sendBtn">
-              <span class="circle" aria-hidden="true">
-                <span class="icon arrow"></span>
-              </span>
-              <span class="button-text">Enviar</span>
-            </button>
+            <button class="button" id="playBtn">Reproducir</button>
+            <button class="button" id="discardBtn">Descartar</button>
+            <button class="button" id="sendBtn">Enviar</button>
         </div>
     </div>
 
