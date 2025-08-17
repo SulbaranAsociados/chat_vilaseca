@@ -55,7 +55,7 @@
                 this.messageField = document.getElementById('messageField');
                 this.sendButton = document.getElementById('sendButton');
                 this.statusMessage = document.getElementById('statusMessage');
-                this.webhookUrl = 'https://super-asistente-n8n.krtgsl.easypanel.host/webhook-test/74093b37-ead0-4c6f-8fba-bcde701e10fc';
+                this.webhookUrl = 'https://super-asistente-n8n.krtgsl.easypanel.host/webhook/74093b37-ead0-4c6f-8fba-bcde701e10fc';
                 
                 this.init();
             }
@@ -77,8 +77,35 @@
             async sendMessage() {
                 const message = this.messageField.value.trim();
                 if (!message) return;
-                console.log("Enviando mensaje de texto:", message);
-                // Lógica de envío...
+
+                const messageId = Date.now().toString();
+                const messageType = 'txt';
+
+                const data = {
+                    messageId: messageId,
+                    type: messageType,
+                    text: message
+                };
+
+                try {
+                    const response = await fetch(this.webhookUrl, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        console.log('Mensaje enviado correctamente');
+                        this.messageField.value = '';
+                        this.autoResize();
+                    } else {
+                        console.error('Error al enviar el mensaje:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('Error en la red:', error);
+                }
             }
         }
 
@@ -89,6 +116,9 @@
                     console.error("Contenedor del grabador no encontrado");
                     return;
                 }
+
+                this.webhookUrl = 'https://super-asistente-n8n.krtgsl.easypanel.host/webhook/74093b37-ead0-4c6f-8fba-bcde701e10fc';
+                this.stream = null;
 
                 this.elements = {
                     micContainer: this.container.querySelector('#micContainer'),
@@ -133,18 +163,21 @@
 
             async requestPermission() {
                 try {
-                    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
                     this.hasPermission = true;
-                    this.startRecording(stream);
+                    this.startRecording();
                 } catch (error) {
                     this.elements.statusText.textContent = "Debes permitir el acceso al micrófono.";
                     console.error("Error de permisos:", error);
                 }
             }
 
-            async startRecording(stream) {
+            async startRecording() {
                 try {
-                    const audioStream = stream || await navigator.mediaDevices.getUserMedia({ audio: true });
+                    if (!this.stream) {
+                        this.stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                    }
+                    const audioStream = this.stream;
                     const options = {};
                     if (MediaRecorder.isTypeSupported('audio/ogg; codecs=opus')) {
                         options.mimeType = 'audio/ogg; codecs=opus';
@@ -162,7 +195,6 @@
                     this.mediaRecorder.onstop = () => {
                         this.audioBlob = new Blob(this.audioChunks, { type: options.mimeType });
                         this.audioChunks = [];
-                        audioStream.getTracks().forEach(track => track.stop());
                         this.updateUIForRecording(false);
                     };
                     this.mediaRecorder.start();
@@ -213,14 +245,33 @@
                 this.elements.statusText.textContent = "Toca el micrófono para enviar un mensaje con tu voz.";
             }
 
-            sendRecording() {
-                if (this.audioBlob) {
-                    console.log("Audio Blob listo para enviar:", this.audioBlob);
-                    this.elements.statusText.textContent = "¡Audio listo para ser enviado!";
-                    // Aquí iría la lógica para subir el this.audioBlob a un servidor.
-                    // Ejemplo: uploadToServer(this.audioBlob);
-                    this.discardRecording(); // Resetear la UI después de enviar
+            async sendRecording() {
+                if (!this.audioBlob) return;
+
+                const messageId = Date.now().toString();
+                const messageType = 'audio';
+
+                const formData = new FormData();
+                formData.append('audio', this.audioBlob, 'audio.ogg');
+                formData.append('messageId', messageId);
+                formData.append('type', messageType);
+
+                try {
+                    const response = await fetch(this.webhookUrl, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    if (response.ok) {
+                        console.log('Audio enviado correctamente');
+                    } else {
+                        console.error('Error al enviar el audio:', response.statusText);
+                    }
+                } catch (error) {
+                    console.error('Error en la red:', error);
                 }
+
+                this.discardRecording();
             }
         }
 
