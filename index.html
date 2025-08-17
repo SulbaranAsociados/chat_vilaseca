@@ -248,30 +248,40 @@
             async sendRecording() {
                 if (!this.audioBlob) return;
 
-                const messageId = Date.now().toString();
-                const messageType = 'audio';
+                const reader = new FileReader();
+                reader.readAsDataURL(this.audioBlob);
+                reader.onloadend = async () => {
+                    const base64Audio = reader.result;
 
-                const formData = new FormData();
-                formData.append('audio', this.audioBlob, 'audio.ogg');
-                formData.append('messageId', messageId);
-                formData.append('type', messageType);
+                    const messageId = Date.now().toString();
+                    const messageType = 'audio';
 
-                try {
-                    const response = await fetch(this.webhookUrl, {
-                        method: 'POST',
-                        body: formData
-                    });
+                    const data = {
+                        messageId: messageId,
+                        type: messageType,
+                        audio: base64Audio
+                    };
 
-                    if (response.ok) {
-                        console.log('Audio enviado correctamente');
-                    } else {
-                        console.error('Error al enviar el audio:', response.statusText);
+                    try {
+                        const response = await fetch(this.webhookUrl, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(data)
+                        });
+
+                        if (response.ok) {
+                            console.log('Audio enviado correctamente');
+                        } else {
+                            console.error('Error al enviar el audio:', response.statusText);
+                        }
+                    } catch (error) {
+                        console.error('Error en la red:', error);
                     }
-                } catch (error) {
-                    console.error('Error en la red:', error);
-                }
 
-                this.discardRecording();
+                    this.discardRecording();
+                };
             }
         }
 
