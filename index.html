@@ -50,6 +50,15 @@
     </div>
 
     <script>
+        function getSessionId() {
+            let sessionId = sessionStorage.getItem('sessionId');
+            if (!sessionId) {
+                sessionId = Date.now().toString() + Math.random().toString(36).substring(2);
+                sessionStorage.setItem('sessionId', sessionId);
+            }
+            return sessionId;
+        }
+
         class ExpandableTextField {
             constructor() {
                 this.messageField = document.getElementById('messageField');
@@ -82,6 +91,7 @@
                 const messageType = 'txt';
 
                 const data = {
+                    sessionId: getSessionId(),
                     messageId: messageId,
                     type: messageType,
                     text: message
@@ -257,6 +267,7 @@
                     const messageType = 'audio';
 
                     const data = {
+                        sessionId: getSessionId(),
                         messageId: messageId,
                         type: messageType,
                         audio: base64Audio
