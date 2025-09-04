@@ -45,7 +45,9 @@
     </div>
 
     <div class="whatsapp-footer">
-        <img src="whatsappGris.png" alt="WhatsApp">
+        <a href="Chat_Vila-seca.vcf" download>
+            <img src="whatsappGris.png" alt="WhatsApp" style="cursor: pointer;">
+        </a>
         <p>Ahora puedes hacer tus consultas usando Whatsapp</p>
     </div>
 
@@ -87,6 +89,9 @@
                 const message = this.messageField.value.trim();
                 if (!message) return;
 
+                this.statusMessage.textContent = 'Procesando tu solicitud...';
+                this.sendButton.disabled = true;
+
                 const messageId = Date.now().toString();
                 const messageType = 'txt';
 
@@ -107,14 +112,18 @@
                     });
 
                     if (response.ok) {
-                        console.log('Mensaje enviado correctamente');
-                        this.messageField.value = '';
-                        this.autoResize();
+                        const result = await response.json();
+                        localStorage.setItem('aiResponse', JSON.stringify(result));
+                        window.location.href = 'resultados.html';
                     } else {
+                        this.statusMessage.textContent = 'Error al enviar el mensaje.';
                         console.error('Error al enviar el mensaje:', response.statusText);
+                        this.sendButton.disabled = false;
                     }
                 } catch (error) {
+                    this.statusMessage.textContent = 'Error de red.';
                     console.error('Error en la red:', error);
+                    this.sendButton.disabled = false;
                 }
             }
         }
@@ -253,10 +262,16 @@
                 this.audioBlob = null;
                 this.elements.controls.classList.remove('visible');
                 this.elements.statusText.textContent = "Toca el micrófono para enviar un mensaje con tu voz.";
+                if (this.stream) {
+                    this.stream.getTracks().forEach(track => track.stop());
+                    this.stream = null;
+                }
             }
 
             async sendRecording() {
                 if (!this.audioBlob) return;
+
+                this.elements.statusText.textContent = 'Enviando audio...';
 
                 const reader = new FileReader();
                 reader.readAsDataURL(this.audioBlob);
@@ -283,11 +298,15 @@
                         });
 
                         if (response.ok) {
-                            console.log('Audio enviado correctamente');
+                            const result = await response.json();
+                            localStorage.setItem('aiResponse', JSON.stringify(result));
+                            window.location.href = 'resultados.html';
                         } else {
+                            this.elements.statusText.textContent = 'Error al enviar el audio.';
                             console.error('Error al enviar el audio:', response.statusText);
                         }
                     } catch (error) {
+                        this.elements.statusText.textContent = 'Error de red.';
                         console.error('Error en la red:', error);
                     }
 
