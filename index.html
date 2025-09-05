@@ -72,6 +72,9 @@
             }
 
             init() {
+                // Limpiar el campo al cargar la página para evitar texto persistente al usar el botón "Atrás"
+                this.messageField.value = '';
+
                 this.messageField.addEventListener('input', () => this.autoResize());
                 this.sendButton.addEventListener('click', () => this.sendMessage());
                 this.messageField.addEventListener('keydown', (e) => { if (e.ctrlKey && e.key === 'Enter') this.sendMessage(); });
