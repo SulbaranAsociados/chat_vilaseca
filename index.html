@@ -89,9 +89,14 @@
             }
 
             async sendMessage() {
+                console.log("Función sendMessage iniciada."); // DEBUG
                 const message = this.messageField.value.trim();
-                if (!message) return;
+                if (!message) {
+                    console.log("Mensaje vacío, no se envía."); // DEBUG
+                    return;
+                }
 
+                console.log("Mensaje a enviar:", message); // DEBUG
                 this.statusMessage.textContent = 'Procesando tu solicitud...';
                 this.sendButton.disabled = true;
 
