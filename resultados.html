@@ -260,7 +260,14 @@
                         const divSponsor = document.createElement('div');
                         divSponsor.className = 'card';
                         
-                        divSponsor.innerHTML = `<h3>${patrocinador.titulo}</h3><p>${patrocinador.contenido}</p>`;
+                        // Lógica para leer el objeto JSON del campo "anuncio"
+                        if (patrocinador.anuncio && typeof patrocinador.anuncio === 'object') {
+                            const titulo = patrocinador.anuncio.titulo || 'Anuncio';
+                            const contenido = patrocinador.anuncio.contenido || 'Contenido no disponible.';
+                            divSponsor.innerHTML = `<h3>${titulo}</h3><p>${contenido}</p>`;
+                        } else {
+                            divSponsor.innerHTML = `<h3>Anuncio no válido</h3>`;
+                        }
 
                         contenedorPatrocinadores.appendChild(divSponsor);
                     });
