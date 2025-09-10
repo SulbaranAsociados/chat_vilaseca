@@ -202,7 +202,10 @@
         // --- SCRIPT PARA MOSTRAR RESULTADOS ---
         window.addEventListener('load', function() {
             const datosCodificados = localStorage.getItem('aiResponse');
-            localStorage.removeItem('aiResponse'); 
+            console.log('--- DATOS RECIBIDOS DEL AI (copiar y pegar todo lo siguiente) ---');
+            console.log(datosCodificados);
+            // localStorage.removeItem('aiResponse'); // Desactivado temporalmente para depuración
+ 
 
             if (!datosCodificados) {
                 document.querySelector('.card-respuesta').innerHTML = '<h2>Error</h2><p>No se pudo cargar la respuesta.</p>';
