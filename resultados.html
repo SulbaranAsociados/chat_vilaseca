@@ -199,13 +199,10 @@
     </div>
 
     <script>
-        // --- SCRIPT PARA MOSTRAR RESULTADOS ---
+        // --- SCRIPT PARA MOSTRAR RESULTADOS (CORREGIDO) ---
         window.addEventListener('load', function() {
             const datosCodificados = localStorage.getItem('aiResponse');
-            console.log('--- DATOS RECIBIDOS DEL AI (copiar y pegar todo lo siguiente) ---');
-            console.log(datosCodificados);
-            // localStorage.removeItem('aiResponse'); // Desactivado temporalmente para depuración
- 
+            localStorage.removeItem('aiResponse'); // Reactivado para limpiar el storage
 
             if (!datosCodificados) {
                 document.querySelector('.card-respuesta').innerHTML = '<h2>Error</h2><p>No se pudo cargar la respuesta.</p>';
@@ -215,21 +212,38 @@
             try {
                 const datos = JSON.parse(datosCodificados);
 
+                // --- INICIO DE LA CORRECCIÓN ---
+                // Asegurarse de que los patrocinadores sean un array, parseando si es un string.
+                let patrocinadoresArray = [];
+                if (typeof datos.patrocinadores === 'string') {
+                    try {
+                        patrocinadoresArray = JSON.parse(datos.patrocinadores);
+                    } catch (e) {
+                        console.error("Error al parsear el string de patrocinadores:", e);
+                        patrocinadoresArray = []; // Dejarlo como array vacío si el parseo falla
+                    }
+                } else if (Array.isArray(datos.patrocinadores)) {
+                    patrocinadoresArray = datos.patrocinadores;
+                }
+                // --- FIN DE LA CORRECCIÓN ---
+
                 document.getElementById('titulo-respuesta').innerText = datos.tituloRespuesta || 'Respuesta';
                 document.getElementById('contenido-respuesta').innerText = datos.contenidoRespuesta || 'No se encontró contenido.';
                 
                 const contenedorPatrocinadores = document.getElementById('contenedor-patrocinadores');
-                if (Array.isArray(datos.patrocinadores) && datos.patrocinadores.length > 0) {
+                // Usar el nuevo array 'patrocinadoresArray' que ya está verificado y parseado
+                if (Array.isArray(patrocinadoresArray) && patrocinadoresArray.length > 0) {
                     const tituloAnuncios = document.createElement('h3');
                     tituloAnuncios.className = 'titulo-seccion';
                     tituloAnuncios.innerText = 'Información de interés comercial';
                     contenedorPatrocinadores.appendChild(tituloAnuncios);
 
-                    datos.patrocinadores.forEach(patrocinador => {
+                    patrocinadoresArray.forEach(patrocinador => {
                         const divSponsor = document.createElement('div');
                         divSponsor.className = 'card';
                         
                         try {
+                            // El resto del código asume que 'anuncio' también es un string JSON
                             if (patrocinador.anuncio && typeof patrocinador.anuncio === 'string') {
                                 const anuncioData = JSON.parse(patrocinador.anuncio);
                                 const titulo = anuncioData.titulo || 'Anuncio';
