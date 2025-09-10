@@ -5,20 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tu Respuesta de Chat con Vila-Seca</title>
     <link rel="stylesheet" href="gris_sobre_gris.css">
-    <link rel="stylesheet" href="../botones.css">
+    <link rel="stylesheet" href="botones.css">
     <style>
         body { font-family: system-ui, sans-serif; background-color: #f9f9f9; color: #333; }
-        .contenedor-pagina { max-width: 800px; margin: auto; padding: 1em; padding-bottom: 120px; }
+        .contenedor-pagina { max-width: 800px; margin: auto; padding: 1em; padding-bottom: 160px; /* Aumentado para dar espacio a la barra inferior */ }
         #contenedor-patrocinadores { display: block; width: 100%; margin: 2em 0; }
 
-        /* Sobrescribimos el tamaño de la clase .card para mantener el aspecto horizontal */
         .card {
             width: 100%;
-            height: auto; /* Altura automática */
+            height: auto;
             padding: 1.5em;
-            margin-bottom: 1em; /* Espacio vertical entre tarjetas */
-            text-align: left; /* Alineación de texto a la izquierda */
-            display: block; /* Aseguramos que el contenido fluya como un bloque */
+            margin-bottom: 1em;
+            text-align: left;
+            display: block;
         }
         .card h3 { margin-top: 0; }
         .card p {
@@ -26,14 +25,12 @@
             font-weight: normal;
         }
 
-        /* Tarjeta de respuesta transparente */
         .card-respuesta { 
             background-color: transparent; 
             border: none; 
             padding: 1.5em; 
         }
 
-        /* Estilos para el logo */
         .logo-container {
             text-align: center;
             margin: 2.5em 0 1em 0;
@@ -56,11 +53,10 @@
             left: 0;
             width: 100%;
             background-color: #f9f9f9;
-            padding-top: 10px;
+            padding: 10px 0;
             box-shadow: 0 -2px 5px rgba(0,0,0,0.1);
         }
 
-        /* Estilos para el contenedor de botones de feedback */
         .buttons-container {
             display: flex;
             justify-content: center;
@@ -69,7 +65,6 @@
             transform: scale(0.75);
         }
 
-        /* Estilos para la imagen estática dentro del botón */
         .button-icon-static {
             position: absolute;
             top: 50%;
@@ -79,18 +74,16 @@
             height: 19px;
             z-index: 9;
         }
-        /* Ajustar la posición del texto del botón */
         button.learn-more .button-text {
-            margin: 0 0 0 3.5rem; /* Ajustar margen para dejar espacio a la imagen */
+            margin: 0 0 0 3.5rem;
             text-align: left;
         }
 
-        /* Estilos de la barra de búsqueda */
         .text-field-container {
             max-width: 600px;
             width: 90%;
             margin: 0 auto;
-            padding-bottom: 0px;
+            padding-bottom: 10px; /* Espacio inferior */
         }
         .textarea-wrapper {
             position: relative;
@@ -115,16 +108,9 @@
             line-height: 1.4;
             box-sizing: border-box;
         }
-        .text-field:focus {
-            outline: none;
-        }
-        .textarea-wrapper:focus-within {
-            border-color: #d0d0d0;
-        }
-        .text-field::placeholder {
-            color: #999;
-            font-style: italic;
-        }
+        .text-field:focus { outline: none; }
+        .textarea-wrapper:focus-within { border-color: #d0d0d0; }
+        .text-field::placeholder { color: #999; font-style: italic; }
         .send-button {
             position: absolute;
             right: 8px;
@@ -142,66 +128,15 @@
             transition: background-color 0.2s ease;
             z-index: 3;
         }
-        .send-button:hover {
-            background-color: rgba(0, 123, 255, 0.1);
-        }
-        .send-button:active {
-            background-color: rgba(0, 123, 255, 0.2);
-        }
+        .send-button:hover { background-color: rgba(0, 123, 255, 0.1); }
+        .send-button:active { background-color: rgba(0, 123, 255, 0.2); }
         .send-icon {
             width: 20px;
             height: 20px;
             fill: #666;
             transition: fill 0.2s ease;
         }
-        .send-button:hover .send-icon {
-            fill: #007bff;
-        }
-        .sending {
-            opacity: 0.7;
-            pointer-events: none;
-        }
-        .status-message {
-            margin-top: 10px;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-size: 13px;
-            text-align: center;
-            opacity: 0;
-            transition: opacity 0.3s ease;
-        }
-        .status-message.show {
-            opacity: 1;
-        }
-        .status-message.success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        .status-message.error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        .text-field::-webkit-scrollbar {
-            width: 8px;
-        }
-        .text-field::-webkit-scrollbar-track {
-            background: transparent;
-            border-radius: 4px;
-        }
-        .text-field::-webkit-scrollbar-thumb {
-            background: #d0d0d0;
-            border-radius: 4px;
-            border: 1px solid #ffffff;
-        }
-        .text-field::-webkit-scrollbar-thumb:hover {
-            background: #b0b0b0;
-        }
-        .text-field {
-            scrollbar-width: thin;
-            scrollbar-color: #d0d0d0 transparent;
-        }
+        .send-button:hover .send-icon { fill: #007bff; }
 
         @media (min-width: 768px) {
             #contenedor-patrocinadores {
@@ -209,16 +144,9 @@
                 justify-content: space-around;
                 flex-wrap: wrap;
             }
-
-            #contenedor-patrocinadores .card {
-                width: 32%; /* for 3 cards */
-                padding: 1em;
-            }
-
+            #contenedor-patrocinadores .card { width: 32%; padding: 1em; }
             #contenedor-patrocinadores .card:nth-child(1):nth-last-child(2),
-            #contenedor-patrocinadores .card:nth-child(2):nth-last-child(1) {
-                width: 48%; /* for 2 cards */
-            }
+            #contenedor-patrocinadores .card:nth-child(2):nth-last-child(1) { width: 48%; }
         }
     </style>
 </head>
@@ -227,7 +155,7 @@
         <div id="contenedor-patrocinadores"></div>
 
         <div class="logo-container">
-            <img src="../logo.png" alt="Logo de Chat con Vila-Seca">
+            <img src="logo.png" alt="Logo de Chat con Vila-Seca">
         </div>
 
         <div class="card-respuesta">
@@ -235,10 +163,30 @@
             <p id="contenido-respuesta"></p>
         </div>
     </div>
+
+    <div class="bottom-bar">
+        <div class="buttons-container">
+            <!-- Marcadores de posición para 4 botones -->
+            <button class="learn-more"><span class="button-text">Botón 1</span></button>
+            <button class="learn-more"><span class="button-text">Botón 2</span></button>
+            <button class="learn-more"><span class="button-text">Botón 3</span></button>
+            <button class="learn-more"><span class="button-text">Botón 4</span></button>
+        </div>
+        <div class="text-field-container">
+            <div class="textarea-wrapper">
+                <textarea id="messageField" class="text-field" placeholder="Haz otra consulta..." rows="1"></textarea>
+                <button id="sendButton" class="send-button" type="button">
+                    <svg class="send-icon" viewBox="0 0 24 24"><path d="M2,21L23,12L2,3V10L17,12L2,14V21Z" /></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        window.onload = function() {
+        // --- SCRIPT PARA MOSTRAR RESULTADOS ---
+        window.addEventListener('load', function() {
             const datosCodificados = localStorage.getItem('aiResponse');
-            localStorage.removeItem('aiResponse'); // Limpiar para no mostrarlo de nuevo
+            localStorage.removeItem('aiResponse'); 
 
             if (!datosCodificados) {
                 document.querySelector('.card-respuesta').innerHTML = '<h2>Error</h2><p>No se pudo cargar la respuesta.</p>';
@@ -262,23 +210,17 @@
                         const divSponsor = document.createElement('div');
                         divSponsor.className = 'card';
                         
-                        // SOLUCIÓN: Parsear el campo "anuncio" que viene como string.
                         try {
                             if (patrocinador.anuncio && typeof patrocinador.anuncio === 'string') {
                                 const anuncioData = JSON.parse(patrocinador.anuncio);
                                 const titulo = anuncioData.titulo || 'Anuncio';
                                 const contenido = anuncioData.contenido || 'Contenido no disponible.';
                                 divSponsor.innerHTML = `<h3>${titulo}</h3><p>${contenido}</p>`;
-                            } else {
-                                // Si el anuncio no es un string o no existe, no se muestra la tarjeta.
-                                return;
-                            }
+                            } else { return; }
                         } catch (e) {
                             console.error("Error al parsear el anuncio del patrocinador:", e);
-                            // Si el JSON dentro del string es inválido, no se muestra la tarjeta.
                             return; 
                         }
-
                         contenedorPatrocinadores.appendChild(divSponsor);
                     });
                 }
@@ -286,8 +228,80 @@
                 console.error("Error al procesar los datos:", error);
                 document.querySelector('.card-respuesta').innerHTML = '<h2>Error</h2><p>La respuesta tiene un formato incorrecto.</p>';
             }
-        };
+        });
+
+        // --- SCRIPT PARA LA NUEVA BARRA DE BÚSQUEDA ---
+        function getSessionId() {
+            let sessionId = sessionStorage.getItem('sessionId');
+            if (!sessionId) {
+                sessionId = Date.now().toString() + Math.random().toString(36).substring(2);
+                sessionStorage.setItem('sessionId', sessionId);
+            }
+            return sessionId;
+        }
+
+        class ExpandableTextField {
+            constructor() {
+                this.messageField = document.getElementById('messageField');
+                this.sendButton = document.getElementById('sendButton');
+                this.webhookUrl = 'https://chat-vilaseca-n8n.gncrvb.easypanel.host/webhook/3d59bbc7-d7e2-4dcc-b694-8614f67c9e6c';
+                
+                this.init();
+            }
+
+            init() {
+                this.messageField.addEventListener('input', () => this.autoResize());
+                this.sendButton.addEventListener('click', () => this.sendMessage());
+                this.messageField.addEventListener('keydown', (e) => { if (e.ctrlKey && e.key === 'Enter') this.sendMessage(); });
+                this.autoResize();
+            }
+
+            autoResize() {
+                this.messageField.style.height = 'auto';
+                const maxHeight = 120;
+                const newHeight = Math.min(this.messageField.scrollHeight, maxHeight);
+                this.messageField.style.height = newHeight + 'px';
+            }
+
+            async sendMessage() {
+                const message = this.messageField.value.trim();
+                if (!message) return;
+
+                this.sendButton.disabled = true;
+                this.messageField.placeholder = 'Procesando...';
+
+                const data = {
+                    sessionId: getSessionId(),
+                    messageId: Date.now().toString(),
+                    type: 'txt',
+                    text: message
+                };
+
+                try {
+                    const response = await fetch(this.webhookUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+
+                    if (response.ok) {
+                        const result = await response.json();
+                        localStorage.setItem('aiResponse', JSON.stringify(result));
+                        window.location.href = 'resultados.html'; // Recarga la página de resultados con la nueva respuesta
+                    } else {
+                        this.messageField.placeholder = 'Error al enviar. Intenta de nuevo.';
+                        this.sendButton.disabled = false;
+                    }
+                } catch (error) {
+                    this.messageField.placeholder = 'Error de red. Intenta de nuevo.';
+                    this.sendButton.disabled = false;
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            new ExpandableTextField();
+        });
     </script>
-    
 </body>
 </html>
