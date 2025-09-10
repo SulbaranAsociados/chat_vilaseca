@@ -244,13 +244,15 @@
                 document.querySelector('.card-respuesta').innerHTML = '<h2>Error</h2><p>No se pudo cargar la respuesta.</p>';
                 return;
             }
+
             try {
                 const datos = JSON.parse(datosCodificados);
+
                 document.getElementById('titulo-respuesta').innerText = datos.tituloRespuesta || 'Respuesta';
                 document.getElementById('contenido-respuesta').innerText = datos.contenidoRespuesta || 'No se encontró contenido.';
                 
                 const contenedorPatrocinadores = document.getElementById('contenedor-patrocinadores');
-                if (datos.patrocinadores && datos.patrocinadores.length > 0) {
+                if (Array.isArray(datos.patrocinadores) && datos.patrocinadores.length > 0) {
                     const tituloAnuncios = document.createElement('h3');
                     tituloAnuncios.className = 'titulo-seccion';
                     tituloAnuncios.innerText = 'Información de interés comercial';
@@ -260,13 +262,21 @@
                         const divSponsor = document.createElement('div');
                         divSponsor.className = 'card';
                         
-                        // Lógica para leer el objeto JSON del campo "anuncio"
-                        if (patrocinador.anuncio && typeof patrocinador.anuncio === 'object') {
-                            const titulo = patrocinador.anuncio.titulo || 'Anuncio';
-                            const contenido = patrocinador.anuncio.contenido || 'Contenido no disponible.';
-                            divSponsor.innerHTML = `<h3>${titulo}</h3><p>${contenido}</p>`;
-                        } else {
-                            divSponsor.innerHTML = `<h3>Anuncio no válido</h3>`;
+                        // SOLUCIÓN: Parsear el campo "anuncio" que viene como string.
+                        try {
+                            if (patrocinador.anuncio && typeof patrocinador.anuncio === 'string') {
+                                const anuncioData = JSON.parse(patrocinador.anuncio);
+                                const titulo = anuncioData.titulo || 'Anuncio';
+                                const contenido = anuncioData.contenido || 'Contenido no disponible.';
+                                divSponsor.innerHTML = `<h3>${titulo}</h3><p>${contenido}</p>`;
+                            } else {
+                                // Si el anuncio no es un string o no existe, no se muestra la tarjeta.
+                                return;
+                            }
+                        } catch (e) {
+                            console.error("Error al parsear el anuncio del patrocinador:", e);
+                            // Si el JSON dentro del string es inválido, no se muestra la tarjeta.
+                            return; 
                         }
 
                         contenedorPatrocinadores.appendChild(divSponsor);
