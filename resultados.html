@@ -18,10 +18,31 @@
         .titulo-seccion { color: #555; width: 100%; text-align: center; margin-bottom: 1em; }
         #titulo-respuesta { font-size: 1.2em; position: relative; bottom: 25px; }
         .bottom-bar { position: fixed; bottom: 0; left: 0; width: 100%; background-color: #f9f9f9; padding: 10px 0; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); }
-        .buttons-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 10px; transform: scale(0.75); min-height: 45px; align-items: center;}
-        .learn-more { position: relative; display: inline-block; cursor: pointer; outline: none; border: 0; vertical-align: middle; text-decoration: none; background: #fff; padding: 0; font-size: 1rem; font-family: inherit; width: 12rem; height: auto; border: 2px solid #e0e0e0; border-radius: 2rem; transition: all 0.2s ease; }
-        .learn-more .button-text { display: block; padding: 0.75rem 1.5rem; text-align: center; color: #333; font-weight: bold; }
-        .learn-more:hover:not(:disabled) { background: #f0f0f0; border-color: #ccc; }
+        .buttons-container { display: flex; justify-content: center; gap: 25px; margin-bottom: 10px; min-height: 44px; align-items: center;}
+        
+        /* --- NUEVO ESTILO DE BOTONES (SOLO IMAGEN) -- */
+        .learn-more {
+            background: transparent;
+            border: none;
+            padding: 0;
+            width: 40px;  /* Tamaño del área táctil */
+            height: 40px;
+            cursor: pointer;
+            transition: transform 0.15s ease;
+            -webkit-tap-highlight-color: transparent; /* Evita el recuadro azul en móviles */
+        }
+        .learn-more img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        .learn-more:active:not(:disabled) {
+            transform: scale(0.9);
+        }
+        .learn-more:disabled {
+            opacity: 0.4;
+        }
+
         .text-field-container, #suggestion-container { max-width: 600px; width: 90%; margin: 0 auto; padding-bottom: 10px; }
         .textarea-wrapper { position: relative; border: 2px solid #d0d0d0; border-radius: 25px; background-color: #ffffff; padding-right: 50px; }
         .text-field { width: 100%; min-height: 46px; max-height: 116px; padding: 12px 0px 12px 16px; border: none; border-radius: 23px; background-color: transparent; font-size: 14px; font-family: inherit; resize: none; outline: none; overflow-y: auto; line-height: 1.4; box-sizing: border-box; }
@@ -32,7 +53,9 @@
         .send-button:hover { background-color: rgba(0, 123, 255, 0.1); }
         .send-icon { width: 20px; height: 20px; fill: #666; }
         .send-button:hover .send-icon { fill: #007bff; }
-        #suggestion-container button { margin-top: 5px; }
+        #suggestion-container button { margin-top: 10px; }
+        #suggestion-container .learn-more { width: auto; height: auto; border-radius: 2rem; border: 2px solid #e0e0e0; background: #fff; padding: 0.75rem 1.5rem; }
+
         @media (min-width: 768px) {
             #contenedor-patrocinadores { display: flex; justify-content: space-around; flex-wrap: wrap; }
             #contenedor-patrocinadores .card { width: 32%; padding: 1em; }
@@ -54,10 +77,10 @@
 
     <div class="bottom-bar">
         <div class="buttons-container" id="feedbackContainer">
-            <button id="likeButton" class="learn-more" title="Me gusta esta respuesta"><span class="button-text">👍</span></button>
-            <button id="dislikeButton" class="learn-more" title="No me gusta esta respuesta"><span class="button-text">👎</span></button>
-            <button id="saveButton" class="learn-more" title="Guardar respuesta como .txt"><span class="button-text">📄</span></button>
-            <button id="suggestionButton" class="learn-more" title="Enviar una sugerencia"><span class="button-text">💡</span></button>
+            <button id="likeButton" class="learn-more" title="Me gusta esta respuesta"><img src="meGustapng.png" alt="Me gusta"></button>
+            <button id="dislikeButton" class="learn-more" title="No me gusta esta respuesta"><img src="noMeGusta.png" alt="No me gusta"></button>
+            <button id="saveButton" class="learn-more" title="Guardar respuesta"><img src="descargar.png" alt="Guardar"></button>
+            <button id="suggestionButton" class="learn-more" title="Enviar una sugerencia"><img src="sugerencias.png" alt="Sugerencias"></button>
         </div>
         <div class="text-field-container" id="mainQueryContainer">
             <div class="textarea-wrapper">
@@ -71,8 +94,10 @@
             <div class="textarea-wrapper">
                 <textarea id="suggestionField" class="text-field" placeholder="Escribe tu sugerencia..." rows="1"></textarea>
             </div>
-            <button id="sendSuggestionButton" class="learn-more">Enviar Sugerencia</button>
-            <button id="cancelSuggestionButton" class="learn-more">Cancelar</button>
+            <div style="text-align: center;">
+                <button id="sendSuggestionButton" class="learn-more">Enviar</button>
+                <button id="cancelSuggestionButton" class="learn-more">Cancelar</button>
+            </div>
         </div>
     </div>
 
@@ -142,15 +167,18 @@
 
         // --- SCRIPT PARA LA NUEVA BARRA DE BÚSQUEDA ---
         class ExpandableTextField {
-            constructor() {
-                this.messageField = document.getElementById('messageField');
-                this.sendButton = document.getElementById('sendButton');
+            constructor(fieldId, buttonId) {
+                this.messageField = document.getElementById(fieldId);
+                this.sendButton = document.getElementById(buttonId);
                 this.webhookUrl = 'https://chat-vilaseca-n8n.gncrvb.easypanel.host/webhook/3d59bbc7-d7e2-4dcc-b694-8614f67c9e6c';
+                if (!this.messageField) return;
                 this.init();
             }
             init() {
                 this.messageField.addEventListener('input', () => this.autoResize(this.messageField));
-                this.sendButton.addEventListener('click', () => this.sendMessage());
+                if (this.sendButton) {
+                    this.sendButton.addEventListener('click', () => this.sendMessage());
+                }
                 this.messageField.addEventListener('keydown', (e) => { if (e.ctrlKey && e.key === 'Enter') this.sendMessage(); });
                 this.autoResize(this.messageField);
             }
@@ -166,10 +194,10 @@
                 if (!sessionId) {
                     this.messageField.value = '';
                     this.messageField.placeholder = 'Error: No se pudo encontrar la sesión. Por favor, vuelva a la página de inicio.';
-                    this.sendButton.disabled = true;
+                    if (this.sendButton) this.sendButton.disabled = true;
                     return;
                 }
-                this.sendButton.disabled = true;
+                if (this.sendButton) this.sendButton.disabled = true;
                 this.messageField.placeholder = 'Procesando...';
                 const data = { sessionId: sessionId, messageId: Date.now().toString(), type: 'txt', text: message };
                 try {
@@ -180,11 +208,11 @@
                         window.location.href = 'resultados.html';
                     } else {
                         this.messageField.placeholder = 'Error al enviar. Intenta de nuevo.';
-                        this.sendButton.disabled = false;
+                        if (this.sendButton) this.sendButton.disabled = false;
                     }
                 } catch (error) {
                     this.messageField.placeholder = 'Error de red. Intenta de nuevo.';
-                    this.sendButton.disabled = false;
+                    if (this.sendButton) this.sendButton.disabled = false;
                 }
             }
         }
@@ -208,9 +236,8 @@
             const handleFeedback = async (feedbackType) => {
                 likeBtn.disabled = true;
                 dislikeBtn.disabled = true;
-                suggestionBtn.disabled = true;
-                likeBtn.style.opacity = '0.6';
-                dislikeBtn.style.opacity = '0.6';
+                likeBtn.style.opacity = '0.4';
+                dislikeBtn.style.opacity = '0.4';
                 const sessionId = getSessionId();
                 if (!sessionId) { return; }
                 const data = { feedback: feedbackType, sessionId: sessionId };
@@ -257,7 +284,8 @@
                 if (!suggestionText) return;
 
                 sendSuggestionBtn.disabled = true;
-                sendSuggestionBtn.innerText = 'Enviando...';
+                cancelSuggestionBtn.disabled = true;
+
                 const sessionId = getSessionId();
                 const data = { suggestion: suggestionText, sessionId: sessionId };
 
@@ -274,7 +302,8 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => { 
-            new ExpandableTextField();
+            new ExpandableTextField('messageField', 'sendButton');
+            new ExpandableTextField('suggestionField', null); // Para que el textarea de sugerencias también se expanda
             setupActionButtons();
         });
     </script>
