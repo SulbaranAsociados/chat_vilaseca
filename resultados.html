@@ -284,7 +284,7 @@
 
         // --- SCRIPT PARA LOS BOTONES DE ACCIONES ---
         function setupActionButtons() {
-            const webhookUrl = 'https://chat-vilaseca-n8n.gncrvb.easypanel.host/webhook/3d59bbc7-d7e2-4dcc-b694-8614f67c9e6c';
+            const feedbackWebhookUrl = 'https://chat-vilaseca-n8n.gncrvb.easypanel.host/webhook/5572e201-d26b-4124-b89a-ad7e40d34dfe';
             const likeBtn = document.getElementById('likeButton');
             const dislikeBtn = document.getElementById('dislikeButton');
             const saveBtn = document.getElementById('saveButton');
@@ -307,7 +307,7 @@
                 if (!sessionId) { return; }
                 const data = { feedback: feedbackType, sessionId: sessionId };
                 try {
-                    await fetch(webhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                    await fetch(feedbackWebhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
                 } catch (error) {
                     console.error('Error enviando el feedback:', error);
                 }
@@ -355,7 +355,7 @@
                 const data = { suggestion: suggestionText, sessionId: sessionId };
 
                 try {
-                    const response = await fetch(webhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                    const response = await fetch(feedbackWebhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
                     if (response.ok) {
                         suggestionContainer.innerHTML = '<p style="color: #333; font-weight: bold;">¡Gracias por tu sugerencia!</p>';
                     } else { throw new Error('Error en el servidor'); }
