@@ -175,6 +175,8 @@
                     contenedorPatrocinadores.appendChild(tituloAnuncios);
                     patrocinadoresArray.forEach(patrocinador => {
                         let anuncioData = null;
+                        const websiteUrl = patrocinador.website_url; // Obtener la URL del sitio web
+
                         try {
                             if (patrocinador.anuncio) {
                                 if (typeof patrocinador.anuncio === 'string') {
@@ -186,10 +188,26 @@
                             if (anuncioData) {
                                 const titulo = anuncioData.titulo_anuncio || 'Anuncio';
                                 const contenido = anuncioData.descripcion_anuncio || 'Contenido no disponible.';
+                                
                                 const divSponsor = document.createElement('div');
                                 divSponsor.className = 'card';
                                 divSponsor.innerHTML = `<h3>${titulo}</h3><p>${contenido}</p>`;
-                                contenedorPatrocinadores.appendChild(divSponsor);
+
+                                // Si existe una URL, envolvemos la tarjeta en un enlace
+                                if (websiteUrl) {
+                                    const link = document.createElement('a');
+                                    link.href = websiteUrl;
+                                    link.target = '_blank'; // Abrir en una nueva pestaña
+                                    link.rel = 'noopener noreferrer'; // Buenas prácticas de seguridad
+                                    link.style.textDecoration = 'none'; // Quitar el subrayado del enlace
+                                    link.style.color = 'inherit'; // Heredar el color del texto
+                                    
+                                    link.appendChild(divSponsor);
+                                    contenedorPatrocinadores.appendChild(link);
+                                } else {
+                                    // Si no hay URL, solo añadimos la tarjeta como antes
+                                    contenedorPatrocinadores.appendChild(divSponsor);
+                                }
                             }
                         } catch (e) {
                             console.error("Error procesando patrocinador:", e, patrocinador);
