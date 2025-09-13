@@ -93,13 +93,16 @@
             </div>
         </div>
         <div id="suggestion-container" style="display: none;">
-            <div class="textarea-wrapper">
-                <textarea id="suggestionField" class="text-field" placeholder="Escribe tu sugerencia..." rows="1"></textarea>
+            <div id="suggestion-form">
+                <div class="textarea-wrapper">
+                    <textarea id="suggestionField" class="text-field" placeholder="Escribe tu sugerencia..." rows="1"></textarea>
+                </div>
+                <div style="text-align: center;">
+                    <button id="sendSuggestionButton" class="learn-more">Enviar</button>
+                    <button id="cancelSuggestionButton" class="learn-more">Cancelar</button>
+                </div>
             </div>
-            <div style="text-align: center;">
-                <button id="sendSuggestionButton" class="learn-more">Enviar</button>
-                <button id="cancelSuggestionButton" class="learn-more">Cancelar</button>
-            </div>
+            <div id="suggestion-message" style="display: none; text-align: center; padding: 1em;"></div>
         </div>
     </div>
 
@@ -331,6 +334,9 @@
                 URL.revokeObjectURL(url);
             });
 
+            const suggestionForm = document.getElementById('suggestion-form');
+            const suggestionMessage = document.getElementById('suggestion-message');
+
             // Lógica de Sugerencias
             suggestionBtn.addEventListener('click', () => {
                 feedbackContainer.style.display = 'none';
@@ -345,23 +351,45 @@
             });
 
             sendSuggestionBtn.addEventListener('click', async () => {
+                const suggestionField = document.getElementById('suggestionField');
                 const suggestionText = suggestionField.value.trim();
                 if (!suggestionText) return;
 
-                sendSuggestionBtn.disabled = true;
-                cancelSuggestionBtn.disabled = true;
+                document.getElementById('sendSuggestionButton').disabled = true;
+                document.getElementById('cancelSuggestionButton').disabled = true;
 
                 const sessionId = getSessionId();
                 const data = { suggestion: suggestionText, sessionId: sessionId };
 
                 try {
                     const response = await fetch(feedbackWebhookUrl, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+                    
+                    suggestionForm.style.display = 'none';
+                    suggestionMessage.style.display = 'block';
+
                     if (response.ok) {
-                        suggestionContainer.innerHTML = '<p style="color: #333; font-weight: bold;">¡Gracias por tu sugerencia!</p>';
-                    } else { throw new Error('Error en el servidor'); }
+                        suggestionMessage.innerHTML = '<p style="color: #333; font-weight: bold;">¡Gracias por tu sugerencia!</p>';
+                    } else {
+                        throw new Error('Error en el servidor');
+                    }
                 } catch (error) {
                     console.error('Error enviando la sugerencia:', error);
-                    suggestionContainer.innerHTML = '<p style="color: red; font-weight: bold;">Error al enviar la sugerencia.</p>';
+                    suggestionMessage.innerHTML = '<p style="color: red; font-weight: bold;">Error al enviar la sugerencia.</p>';
+                } finally {
+                    // Resetea la UI después de un retardo
+                    setTimeout(() => {
+                        suggestionContainer.style.display = 'none';
+                        suggestionMessage.style.display = 'none';
+                        suggestionForm.style.display = 'block';
+                        
+                        // Reactiva los botones y limpia el campo de texto
+                        document.getElementById('sendSuggestionButton').disabled = false;
+                        document.getElementById('cancelSuggestionButton').disabled = false;
+                        suggestionField.value = '';
+
+                        feedbackContainer.style.display = 'flex';
+                        mainQueryContainer.style.display = 'block';
+                    }, 2500);
                 }
             });
         }
